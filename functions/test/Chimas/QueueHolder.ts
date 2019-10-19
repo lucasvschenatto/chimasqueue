@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import QueueHolder from "../../src/chimas/QueueHolder";
-import Queue from "../../src/chimas/Queue";
+import QueueHolder from "../../src/Chimas/QueueHolder";
+import Queue from "../../src/Chimas/Queue";
 
 let holder: QueueHolder;
 const name = "sampleName";
