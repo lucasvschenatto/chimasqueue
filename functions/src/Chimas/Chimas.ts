@@ -101,7 +101,7 @@ export default class Chimas {
 
   private help(): string {
     return "*ChimaQueue*\n" +
-      "For usage help, access: https://github.com/danielbertolozi/chimaqueue.\n" +
+      "For usage help, access: https://github.com/lucasvschenatto/chimaqueue.\n" +
       "Available Commands: `new, join, leave, next, who, members, clear`.";
   }
 
