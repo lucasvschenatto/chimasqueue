@@ -1,7 +1,7 @@
 import QueueHolder from "./QueueHolder";
 import { SlackPayload } from "../localDefinitions";
 
-type Action = (channelName: string, userName: string) => string;
+type Action = (payload: SlackPayload) => string;
 
 export default class Chimas {
   private queues: QueueHolder;
@@ -24,14 +24,16 @@ export default class Chimas {
     if (!Actions[action]) {
       return "Action not available.";
     }
-    const channelName = payload.channel_name;
-    const userName = payload.user_id;
-    return this.actionsMap[action](channelName, userName);
+    // const channelName = payload.channel_name;
+    // const userName = payload.user_id;
+    return this.actionsMap[action](payload);
   }
 
-  private join(channelName: string, userName: string): string {
+  private join(payload: SlackPayload): string {
     let message: string;
     try {
+      const channelName = payload.channel_name
+      const userName = payload.user_id
       this.queues.get(channelName).add(userName);
       message = `<@${userName}> has joined the queue!`;
     } catch (e) {
@@ -40,9 +42,10 @@ export default class Chimas {
     return message;
   }
 
-  private newQueue(channelName: string): string {
+  private newQueue(payload: SlackPayload): string {
     let message: string;
     try {
+      const channelName = payload.channel_name
       this.queues.create(channelName);
       message = `Queue started for channel ${channelName}! Prepare the chimas :chimas:`;
     } catch (e) {
@@ -51,9 +54,11 @@ export default class Chimas {
     return message;
   }
 
-  private leave(channelName: string, userName: string): string {
+  private leave(payload: SlackPayload): string {
     let message: string;
     try {
+      const channelName = payload.channel_name
+      const userName = payload.user_id
       this.queues.get(channelName).remove(userName);
       message = `User <@${userName}> has left the queue.`;
     } catch (e) {
@@ -62,9 +67,10 @@ export default class Chimas {
     return message;
   }
 
-  private next(channelName: string): string {
+  private next(payload: SlackPayload): string {
     let message: string;
     try {
+      const channelName = payload.channel_name
       const next = this.queues.get(channelName).whosNext();
       message = `The next in queue is <@${next}>. :chimas:`;
     } catch (e) {
@@ -73,9 +79,10 @@ export default class Chimas {
     return message;
   }
 
-  private who(channelName: string): string {
+  private who(payload: SlackPayload): string {
     let message: string;
     try {
+      const channelName = payload.channel_name
       const user = this.queues.get(channelName).whosWithIt();
       if (user) {
         message = `<@${user}> is with the chimarrão. :chimas:`;
@@ -88,9 +95,10 @@ export default class Chimas {
     return message;
   }
 
-  private clear(channelName: string): string {
+  private clear(payload: SlackPayload): string {
     let message: string;
     try {
+      const channelName = payload.channel_name
       this.queues.get(channelName).clear();
       message = `The queue has been cleared!`;
     } catch (e) {
@@ -105,9 +113,10 @@ export default class Chimas {
       "Available Commands: `new, join, leave, next, who, members, clear`.";
   }
 
-  private showMembers(channelName: string): string {
+  private showMembers(payload: SlackPayload): string {
     let message: string;
     try {
+      const channelName = payload.channel_name
       const usersInQueue = this.queues.get(channelName).getGuestList();
       if (usersInQueue.length > 0) {
         message = `The following users are in this queue, in this order: <@${usersInQueue.join(">, <@")}>.`;
