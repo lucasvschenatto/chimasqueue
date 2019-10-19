@@ -1,9 +1,9 @@
-# Instalation
-Firebase requires 
-
 # Chimaqueue
 
 A Slack-Bot in Typescript to manage chimarrão queue, ready to be deployed in firebase.
+
+# Instalation
+Firebase functions require setup, see its own documentation.
 
 ## Commands
 
