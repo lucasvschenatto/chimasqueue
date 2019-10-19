@@ -1,0 +1,34 @@
+# Instalation
+Firebase requires 
+
+# Chimaqueue
+
+A Slack-Bot in Typescript to manage chimarrão queue, ready to be deployed in firebase.
+
+## Commands
+
+| Command | What?   |
+|---------|---------|
+| `new` | Starts a queue in the actual channel. |
+| `join` | Enters a queue from the actual channel. |
+| `leave` | Leaves a queue from the actual channel. |
+| `next` | See who's next in line (this is where you pass the cuia around). |
+| `who` | See who's with the chimarrão. |
+| `members` | See who's in this queue, in order. |
+| `clear` | Clears the queue. |
+
+## Development
+
+### Available Commands:
+
+`npm run test`: Runs the unit tests using mocha
+`npm build`: Build
+`npm deploy`: Deployes the application into firebase
+
+### Todos
+
+- [ ] Cover `Chimas.ts` in tests (is more of an integration in that sense)
+- [ ] Implement DB persistance 
+- [ ] Add missing documentation
+
+**For more pending features, refer to Issues.**
