@@ -30,5 +30,6 @@ Firebase functions require setup, see its own documentation.
 - [ ] Cover `Chimas.ts` in tests (is more of an integration in that sense)
 - [ ] Implement DB persistance 
 - [ ] Add missing documentation
+- [ ] Add more features (skip, last)
 
 **For more pending features, refer to Issues.**
