@@ -24,8 +24,6 @@ export default class Chimas {
     if (!Actions[action]) {
       return "Action not available.";
     }
-    // const channelName = payload.channel_name;
-    // const userName = payload.user_id;
     return this.actionsMap[action](payload);
   }
 
