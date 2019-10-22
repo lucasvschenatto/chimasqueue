@@ -14,6 +14,7 @@ export default class Chimas {
       [Actions.leave]: this.leave.bind(this),
       [Actions.next]: this.next.bind(this),
       [Actions.who]: this.who.bind(this),
+      [Actions.blame]: this.blame.bind(this),
       [Actions.clear]: this.clear.bind(this),
       [Actions.help]: this.help.bind(this),
       [Actions.members]: this.showMembers.bind(this)
@@ -93,6 +94,22 @@ export default class Chimas {
     return message;
   }
 
+  private blame(payload: SlackPayload): string {
+    let message: string;
+    try {
+      const channelName = payload.channel_name
+      const user = this.queues.get(channelName).whosWithIt();
+      if (user) {
+        message = `<@${user}> is holding the chimarrão. :blame:`;
+      } else {
+        message = "The queue hasn't started yet. Use `new` and/or `join to start it!`";
+      }
+    } catch (e) {
+      message = e.message;
+    }
+    return message;
+  }
+
   private clear(payload: SlackPayload): string {
     let message: string;
     try {
@@ -108,7 +125,7 @@ export default class Chimas {
   private help(): string {
     return "*ChimaQueue*\n" +
       "For usage help, access: https://github.com/lucasvschenatto/chimaqueue.\n" +
-      "Available Commands: `new, join, leave, next, who, members, clear`.";
+      "Available Commands: `new, join, leave, next, who, blame, members, clear`.";
   }
 
   private showMembers(payload: SlackPayload): string {
@@ -134,6 +151,7 @@ enum Actions {
   leave = "leave",
   next = "next",
   who = "who",
+  blame = "blame",
   members = "members",
   clear = "clear",
   help = "help"
