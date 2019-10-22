@@ -45,7 +45,7 @@ export default class Chimas {
     try {
       const channelName = payload.channel_name
       this.queues.create(channelName);
-      message = `Queue started for channel ${channelName}! Prepare the chimas :chimas:`;
+      message = `<@here>, queue started for channel ${channelName}! Prepare the chimas :chimas:`;
     } catch (e) {
       message = e.message;
     }
