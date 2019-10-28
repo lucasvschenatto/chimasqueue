@@ -1,9 +1,15 @@
 import * as functions from 'firebase-functions'
+import * as admin from 'firebase-admin'
 import * as Payload from "slack-payload"
 import {SlackPayload} from './localDefinitions'
 import Chimas from './Chimas/Chimas'
 
-const chimas = new Chimas();
+const chimas = new Chimas()
+admin.initializeApp()
+
+interface testPayload {
+    user_id:string
+}
 
 const app = functions.https.onRequest((request, reply) => {
     const payload = new Payload(request.body) as SlackPayload
@@ -21,6 +27,30 @@ const test = functions.https.onRequest((request, reply) => {
     reply.send(JSON.stringify(payload))
 })
 
+const testFirestore = functions.https.onRequest((request, response) => {
+    admin.firestore().doc('queue/teste').get()
+    .then(snapshot => response.send(snapshot.data()))
+    .catch(error => {
+        console.log(JSON.stringify(error))
+        response.send(error)
+    }
+    )
+})
+
+const join = functions.https.onRequest((request, response) => {
+    const body = request.body as testPayload
+
+    admin.firestore().doc('queue/teste').collection('members').doc().create(body)
+    
+    // set({'members':[body.user_id]})
+    .then(()=> response.send("done"))
+    .catch(error =>{
+        console.log(error)
+        response.send(error)
+    })
+    
+})
+
 function logInputOutput(payload: SlackPayload, response: string) {
     console.log("-----------------------------")
     console.log("Payload:\n"+JSON.stringify(payload))
@@ -29,4 +59,5 @@ function logInputOutput(payload: SlackPayload, response: string) {
     console.log("-----------------------------")
 }
 
-export { app, test }
+
+export { app, test, testFirestore, join }
