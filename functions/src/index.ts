@@ -5,8 +5,8 @@ import {SlackPayload} from './localDefinitions'
 import Chimas from './Chimas/Chimas'
 
 const chimas = new Chimas()
-admin.initializeApp()
-
+admin.initializeApp(functions.config().firebase)
+const db = admin.firestore()
 interface testPayload {
     user_id:string
 }
@@ -27,8 +27,8 @@ const test = functions.https.onRequest((request, reply) => {
     reply.send(JSON.stringify(payload))
 })
 
-const testFirestore = functions.https.onRequest((request, response) => {
-    admin.firestore().doc('queue/teste').get()
+const read = functions.https.onRequest((request, response) => {
+    db.doc('queue/teste').get()
     .then(snapshot => response.send(snapshot.data()))
     .catch(error => {
         console.log(JSON.stringify(error))
@@ -40,7 +40,7 @@ const testFirestore = functions.https.onRequest((request, response) => {
 const join = functions.https.onRequest((request, response) => {
     const body = request.body as testPayload
 
-    admin.firestore().doc('queue/teste').collection('members').doc().create(body)
+    db.doc('queue/teste').collection('members').doc().create(body)
     
     // set({'members':[body.user_id]})
     .then(()=> response.send("done"))
@@ -60,4 +60,4 @@ function logInputOutput(payload: SlackPayload, response: string) {
 }
 
 
-export { app, test, testFirestore, join }
+export { app, test, read as testFirestore, join }
