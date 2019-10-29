@@ -23,4 +23,4 @@ export enum Actions {
     help = "help"
 }
 
-export type Action = (payload: SlackPayload) => string;
+export type Action = (payload: SlackPayload) => string|Promise<string>
