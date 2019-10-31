@@ -57,7 +57,7 @@ export default class FirebaseChimas{
                 const queue = this.db.doc(`queue/${payload.channel_id}`)
                 const queueSnapshot = await queue.get()
                 const queueData = queueSnapshot.data() as Queue
-                let query = await this.db.collection(`queue/${payload.channel_id}/members`).orderBy('timestamp')
+                let query = this.db.collection(`queue/${payload.channel_id}/members`).orderBy('timestamp')
                 if(queueData.current_id){
                     const current = await this.db.doc(`queue/${payload.channel_id}/members/${queueData.current_id}`).get()
                     if(current.exists){
