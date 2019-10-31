@@ -20,10 +20,10 @@ export default class FirebaseChimas{
     }
 
     public async execute(action: string, payload: SlackPayload) {
-        if (!Actions[action] || !(typeof Actions[action] === 'function')) {
+        if (!Actions[action]) {
           return `Action ${action} not available.`
         }
-        return this.actionsMap[action](payload) as Promise<string>
+        return this.actionsMap[action](payload)
     }
 
     private async join(payload: SlackPayload){

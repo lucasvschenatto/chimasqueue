@@ -9,9 +9,6 @@ const chimas = new Chimas()
 admin.initializeApp(functions.config().firebase)
 const db = admin.firestore()
 const firebaseChimas = new FirebaseChimas(db)
-interface testPayload {
-    user_id:string
-}
 
 const app = functions.https.onRequest((request, reply) => {
     const payload = new Payload(request.body) as SlackPayload
@@ -22,7 +19,7 @@ const app = functions.https.onRequest((request, reply) => {
     reply.send(response)
 })
 
-const dbQueue = functions.https.onRequest((request, reply) => {
+const appBeta = functions.https.onRequest((request, reply) => {
     const payload = new Payload(request.body) as SlackPayload
     const action = payload.text
     const fbResponse = firebaseChimas.execute(action,payload)
@@ -41,31 +38,9 @@ const dbQueue = functions.https.onRequest((request, reply) => {
     })
 })
 
-const test = functions.https.onRequest((request, reply) => {
+const ping = functions.https.onRequest((request, reply) => {
     const payload = new Payload(request.body) as SlackPayload
     reply.send(JSON.stringify(payload))
-})
-
-const read = functions.https.onRequest((request, response) => {
-    db.doc('queue/teste').get()
-    .then(snapshot => response.send(snapshot.data()))
-    .catch(error => {
-        console.log(JSON.stringify(error))
-        response.send(error)
-    }
-    )
-})
-
-const join = functions.https.onRequest((request, response) => {
-    const body = request.body as testPayload
-
-    db.doc('queue/teste').collection('members').doc().create(body)
-    .then(()=> response.send("done"))
-    .catch(error =>{
-        console.log(error)
-        response.send(error)
-    })
-    
 })
 
 function logInputOutput(payload: SlackPayload, response: string) {
@@ -77,4 +52,4 @@ function logInputOutput(payload: SlackPayload, response: string) {
 }
 
 
-export { app, dbQueue, test, read, join }
+export { app, appBeta, ping }
