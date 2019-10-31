@@ -1,15 +1,12 @@
 import * as functions from 'firebase-functions'
-import * as admin from 'firebase-admin'
 import * as Payload from "slack-payload"
 import {SlackPayload} from './localDefinitions'
 import Chimas from './Chimas/Chimas'
 import FirebaseChimas from './Chimas/FirebaseChimas'
 
-const app = admin.initializeApp()
-// const app = admin.initializeApp(functions.config().firebase)
-const db = admin.firestore(app)
+
 const chimas = new Chimas()
-const firebaseChimas = new FirebaseChimas(db)
+const firebaseChimas = new FirebaseChimas()
 
 const amargo = functions.https.onRequest((request, reply) => {
     const payload = new Payload(request.body) as SlackPayload
