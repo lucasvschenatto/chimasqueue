@@ -3,10 +3,12 @@ import * as admin from 'firebase-admin'
 import * as Payload from "slack-payload"
 import {SlackPayload} from './localDefinitions'
 import Chimas from './Chimas/Chimas'
+import FirebaseChimas from './Chimas/FirebaseChimas'
 
 const chimas = new Chimas()
 admin.initializeApp(functions.config().firebase)
 const db = admin.firestore()
+const firebaseChimas = new FirebaseChimas(db)
 interface testPayload {
     user_id:string
 }
@@ -15,11 +17,23 @@ const app = functions.https.onRequest((request, reply) => {
     const payload = new Payload(request.body) as SlackPayload
     const action = payload.text
     const response = chimas.execute(action, payload)
-    reply.send({
-        response_type: "in_channel",
-        text: response
+    
+    // logInputOutput(payload,response)
+    // reply.send(response)
+    const fbResponse = firebaseChimas.execute(action,payload)
+    fbResponse
+    .then(resp=>{
+
+        reply.send({
+            response_type: "in_channel",
+            text: response + "\n" + resp
+        })
+        logInputOutput(payload,response);
     })
-    logInputOutput(payload,response);
+    .catch(error=>{
+        console.log(error)
+        reply.status(500).end()
+    })
 })
 
 const test = functions.https.onRequest((request, reply) => {
