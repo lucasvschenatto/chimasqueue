@@ -1,6 +1,13 @@
 import { SlackPayload, Actions, Action } from "../localDefinitions"
 import * as admin from 'firebase-admin'
 
+interface Queue extends SlackPayload{
+    current_id:string
+}
+
+interface Member extends SlackPayload{
+    timestamp:string
+}
 
 export default class FirebaseChimas{
     db: FirebaseFirestore.Firestore
@@ -12,7 +19,7 @@ export default class FirebaseChimas{
           [Actions.new]: this.newQueue.bind(this),
           [Actions.join]: this.join.bind(this),
           [Actions.leave]: this.leave.bind(this),
-        //   [Actions.next]: this.next.bind(this),
+          [Actions.next]: this.next.bind(this),
         //   [Actions.who]: this.who.bind(this),
         //   [Actions.blame]: this.blame.bind(this),
         //   [Actions.clear]: this.clear.bind(this),
@@ -32,12 +39,39 @@ export default class FirebaseChimas{
         const doc = this.db.doc(`queue/${payload.channel_id}`)
         return new Promise<string>( async(resolve,reject)=>{
             try{
-                await doc.set(this.withTimestamp(payload))
+                await doc.set({...this.withTimestamp(payload),current_id:``} as Queue)
                 const snapshot = await doc.collection(`members`).get()
                 snapshot.docs.forEach(member=> member.ref.delete())
                 resolve(`<!everyone>, queue started for channel ${payload.channel_name}! Prepare the chimas :chimas:`)
             }catch(error){
                 console.log(`Error on new queue`)
+                console.log(error)
+                reject(error)
+            }
+        })
+    }
+
+    private async next(payload:SlackPayload){
+        return new Promise<string>(async(resolve,reject)=>{
+            try{
+                const queue = this.db.doc(`queue/${payload.channel_id}`)
+                const queueSnapshot = await queue.get()
+                const queueData = queueSnapshot.data() as Queue
+                const current = await this.db.doc(`queue/${payload.channel_id}/members/${queueData.current_id}`).get()
+                const query = await this.db.collection(`queue/${payload.channel_id}/members`).
+                    orderBy('timestamp')
+                    .startAfter(current)
+                    .limit(1)
+                    .get()
+                query.forEach(next=>{
+                    const nextData = next.data() as Member
+                    queue.update({current_id:nextData.user_id})
+                    console.log(`Successful next:`)
+                    console.log(payload)
+                    resolve(`The next in queue is <@${nextData.user_id}>. :chimas:`)
+                })
+            }catch(error){
+                console.log(`Error on next`)
                 console.log(error)
                 reject(error)
             }
@@ -60,12 +94,12 @@ export default class FirebaseChimas{
         })
     }
     private withTimestamp(data: FirebaseFirestore.DocumentData): FirebaseFirestore.DocumentData {
-        return { ...data, timestamp: new Date().toUTCString() }
+        return { ...data, timestamp: new Date().toJSON() }
     }
 
     private async join(payload: SlackPayload){
         return this.db.collection(`queue/${payload.channel_id}/members`).doc(payload.user_id)
-        .set(this.withTimestamp(payload)).then(()=>{
+        .set(this.withTimestamp(payload) as Member).then(()=>{
             console.log(`Successful Join:`)
             console.log(payload)
             return  `<@${payload.user_id}> has joined the queue!`
