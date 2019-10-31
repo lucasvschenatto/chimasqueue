@@ -66,6 +66,8 @@ export default class FirebaseChimas{
                 query.forEach(next=>{
                     const nextData = next.data() as Member
                     queue.update({current_id:nextData.user_id})
+                    .then(()=>{console.log(`updated new current id ${nextData.user_id}`)})
+                    .catch(error=>{throw error})
                     console.log(`Successful next:`)
                     console.log(payload)
                     resolve(`The next in queue is <@${nextData.user_id}>. :chimas:`)
