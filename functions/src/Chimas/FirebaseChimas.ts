@@ -11,7 +11,7 @@ export default class FirebaseChimas{
         this.actionsMap = {
           [Actions.new]: this.newQueue.bind(this),
           [Actions.join]: this.join.bind(this),
-        //   [Actions.leave]: this.leave.bind(this),
+          [Actions.leave]: this.leave.bind(this),
         //   [Actions.next]: this.next.bind(this),
         //   [Actions.who]: this.who.bind(this),
         //   [Actions.blame]: this.blame.bind(this),
@@ -44,8 +44,23 @@ export default class FirebaseChimas{
         })
     }
 
+    private async leave(payload: SlackPayload){
+        return this.db.collection(`queue/${payload.channel_id}/members`)
+        .doc(payload.user_id).delete()
+        .then(()=>{
+            console.log(`Successful Leave:`)
+            console.log(payload)
+            return `<@${payload.user_id}> has left the queue!`
+        })
+        .catch((error)=>{
+            console.log(`Error on leave:`)
+            console.log(payload)
+            console.log(error)
+            return JSON.stringify(error)
+        })
+    }
     private withTimestamp(data: FirebaseFirestore.DocumentData): FirebaseFirestore.DocumentData {
-        return { ...data, timestamp: new Date().toString() }
+        return { ...data, timestamp: new Date().toUTCString() }
     }
 
     private async join(payload: SlackPayload){
@@ -57,7 +72,7 @@ export default class FirebaseChimas{
             }
         )
         .catch(error=>{
-            console.log(`Error on Join:`)
+            console.log(`Error on join:`)
             console.log(payload)
             console.log(error)
             return JSON.stringify(error)
