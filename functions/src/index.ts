@@ -18,21 +18,26 @@ const app = functions.https.onRequest((request, reply) => {
     const action = payload.text
     const response = chimas.execute(action, payload)
     
-    // logInputOutput(payload,response)
-    // reply.send(response)
+    logInputOutput(payload,response)
+    reply.send(response)
+})
+
+const dbQueue = functions.https.onRequest((request, reply) => {
+    const payload = new Payload(request.body) as SlackPayload
+    const action = payload.text
     const fbResponse = firebaseChimas.execute(action,payload)
     fbResponse
-    .then(resp=>{
+    .then(response=>{
 
         reply.send({
             response_type: "in_channel",
-            text: response + "\n" + resp
+            text: response
         })
         logInputOutput(payload,response);
     })
     .catch(error=>{
         console.log(error)
-        reply.status(500).end()
+        reply.send(error)
     })
 })
 
@@ -55,8 +60,6 @@ const join = functions.https.onRequest((request, response) => {
     const body = request.body as testPayload
 
     db.doc('queue/teste').collection('members').doc().create(body)
-    
-    // set({'members':[body.user_id]})
     .then(()=> response.send("done"))
     .catch(error =>{
         console.log(error)
@@ -74,4 +77,4 @@ function logInputOutput(payload: SlackPayload, response: string) {
 }
 
 
-export { app, test, read as testFirestore, join }
+export { app, dbQueue, test, read, join }
