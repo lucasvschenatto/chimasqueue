@@ -58,20 +58,20 @@ export default class FirebaseChimas{
                 const queueSnapshot = await queue.get()
                 const queueData = queueSnapshot.data() as Queue
                 const current = await this.db.doc(`queue/${payload.channel_id}/members/${queueData.current_id}`).get()
-                const query = await this.db.collection(`queue/${payload.channel_id}/members`).
-                    orderBy('timestamp')
-                    .startAfter(current)
-                    .limit(1)
-                    .get()
-                query.forEach(next=>{
-                    const nextData = next.data() as Member
-                    queue.update({current_id:nextData.user_id})
-                    .then(()=>{console.log(`updated new current id ${nextData.user_id}`)})
-                    .catch(error=>{throw error})
-                    console.log(`Successful next:`)
-                    console.log(payload)
-                    resolve(`The next in queue is <@${nextData.user_id}>. :chimas:`)
-                })
+                let query = await this.db.collection(`queue/${payload.channel_id}/members`).orderBy('timestamp')
+                if(current.exists){
+                    query = query.startAfter(current)
+                }
+                const querySnapshot = await query.limit(1).get()
+                querySnapshot.forEach(next=>{
+                        const nextData = next.data() as Member
+                        queue.update({current_id:nextData.user_id})
+                        .then(()=>{console.log(`updated new current id ${nextData.user_id}`)})
+                        .catch(error=>{throw error})
+                        console.log(`Successful next:`)
+                        console.log(payload)
+                        resolve(`The next in queue is <@${nextData.user_id}>. :chimas:`)
+                    })
             }catch(error){
                 console.log(`Error on next`)
                 console.log(error)
