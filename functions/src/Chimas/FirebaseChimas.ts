@@ -68,13 +68,16 @@ export default class FirebaseChimas{
                 if(querySnapshot.empty){
                     console.log(`No next in Queue`)
                     console.log(payload)
-                    resolve(this.restartQueue(payload))
+                    resolve(await this.restartQueue(payload))
                 }
                 querySnapshot.forEach(next=>{
                         const nextData = next.data() as Member
                         queue.update({current_id:nextData.user_id})
                         .then(()=>{console.log(`updated new current id ${nextData.user_id}`)})
-                        .catch(error=>{throw error})
+                        .catch(error=>{
+                            console.log(`error updating current id`)
+                            console.log(error)
+                        })
                         console.log(`Successful next:`)
                         console.log(payload)
                         resolve(`The next in queue is <@${nextData.user_id}>. :chimas:`)
@@ -87,11 +90,18 @@ export default class FirebaseChimas{
         })
     }
     private async restartQueue(payload: SlackPayload) {
-        let query = this.db.collection(`queue/${payload.channel_id}/members`).orderBy('timestamp')
+        const query = this.db.collection(`queue/${payload.channel_id}/members`).orderBy('timestamp')
         const querySnapshot = await query.limit(1).get()
         if(!querySnapshot.empty){
             querySnapshot.forEach(next=>{
                 const nextMember = next.data() as Member
+                const queue = this.db.doc(`queue/${payload.channel_id}`)
+                queue.update({current_id: nextMember.user_id})
+                .then(()=>{console.log(`updated new current id ${nextMember.user_id}`)})
+                .catch(error=>{
+                    console.log(`error updating current id`)
+                    console.log(error)
+                })
                 console.log(`Successful next:`)
                 console.log(payload)
                 return `The next in queue is <@${nextMember.user_id}>. :chimas:`
