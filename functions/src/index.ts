@@ -9,6 +9,7 @@ const chimas = new Chimas()
 const firebaseChimas = new FirebaseChimas()
 
 const amargoInMemory = functions.https.onRequest((request, reply) => {
+    reply.write(JSON.stringify({response_type: "in_channel"}))
     const payload =request.body as SlackPayload
     const action = payload.text
     const response = chimas.execute(action, payload)
@@ -22,11 +23,12 @@ const amargo = functions.https.onRequest((request, reply) => {
     const fbResponse = firebaseChimas.execute(action,payload)
     fbResponse
     .then(response=>{
-        logInputOutput(payload,response);
-        reply.send({
+        const slackResponse = {
             response_type: "in_channel",
             text: response
-        })
+        }
+        logInputOutput(payload,response)
+        reply.send(slackResponse)
     })
     .catch(error=>{
         console.log(error)
