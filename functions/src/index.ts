@@ -20,8 +20,7 @@ const amargoInMemory = functions.https.onRequest((request, reply) => {
 const amargo = functions.https.onRequest((request, reply) => {
     const payload = request.body as SlackPayload
     const action = payload.text
-    const fbResponse = firebaseChimas.execute(action,payload)
-    fbResponse
+    firebaseChimas.execute(action,payload)
     .then(response=>{
         const slackResponse = {
             response_type: "in_channel",
@@ -29,6 +28,28 @@ const amargo = functions.https.onRequest((request, reply) => {
         }
         logInputOutput(payload,response)
         reply.send(slackResponse)
+    })
+    .catch(error=>{
+        console.log(error)
+        reply.send(error)
+    })
+})
+
+const amargoBeta = functions.https.onRequest((request, reply) => {
+    reply.status(200)
+    reply.setHeader('Content-type','application/json')
+    reply.write(JSON.stringify({response_type: "in_channel"}))
+    const payload = request.body as SlackPayload
+    const action = payload.text
+    firebaseChimas.execute(action,payload)
+    .then(response=>{
+        const slackResponse = {
+            response_type: "in_channel",
+            text: response
+        }
+        logInputOutput(payload,response)
+        reply.write(JSON.stringify(slackResponse))
+        reply.end()
     })
     .catch(error=>{
         console.log(error)
@@ -50,4 +71,4 @@ function logInputOutput(payload: SlackPayload, response: string) {
 }
 
 
-export { amargo, amargoInMemory, ping }
+export { amargo, amargoBeta, amargoInMemory, ping }
