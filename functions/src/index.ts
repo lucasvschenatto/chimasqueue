@@ -23,12 +23,11 @@ const amargoBeta = functions.https.onRequest((request, reply) => {
     const fbResponse = firebaseChimas.execute(action,payload)
     fbResponse
     .then(response=>{
-
+        logInputOutput(payload,response);
         reply.send({
             response_type: "in_channel",
             text: response
         })
-        logInputOutput(payload,response);
     })
     .catch(error=>{
         console.log(error)

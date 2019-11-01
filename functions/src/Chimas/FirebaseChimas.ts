@@ -24,7 +24,7 @@ export default class FirebaseChimas{
         //   [Actions.blame]: this.blame.bind(this),
         //   [Actions.clear]: this.clear.bind(this),
           [Actions.help]: this.help.bind(this),
-        //   [Actions.members]: this.showMembers.bind(this)
+        //   [Actions.members]: this.showMembers.bind(this),
         }
     }
 
@@ -46,7 +46,7 @@ export default class FirebaseChimas{
             }catch(error){
                 console.log(`Error on new queue`)
                 console.log(error)
-                reject(error)
+                reject(JSON.stringify(error))
             }
         })
     }
@@ -65,6 +65,11 @@ export default class FirebaseChimas{
                     }
                 }
                 const querySnapshot = await query.limit(1).get()
+                if(querySnapshot.empty){
+                    console.log(`No next in Queue`)
+                    console.log(payload)
+                    resolve(this.restartQueue(payload))
+                }
                 querySnapshot.forEach(next=>{
                         const nextData = next.data() as Member
                         queue.update({current_id:nextData.user_id})
@@ -77,9 +82,22 @@ export default class FirebaseChimas{
             }catch(error){
                 console.log(`Error on next`)
                 console.log(error)
-                reject(error)
+                reject(JSON.stringify(error))
             }
         })
+    }
+    private async restartQueue(payload: SlackPayload) {
+        let query = this.db.collection(`queue/${payload.channel_id}/members`).orderBy('timestamp')
+        const querySnapshot = await query.limit(1).get()
+        if(!querySnapshot.empty){
+            querySnapshot.forEach(next=>{
+                const nextMember = next.data() as Member
+                console.log(`Successful next:`)
+                console.log(payload)
+                return `The next in queue is <@${nextMember.user_id}>. :chimas:`
+            })
+        }
+        return `Queue is empty, join now!`
     }
 
     private async leave(payload: SlackPayload){
