@@ -42,9 +42,9 @@ const ping = functions.https.onRequest((request, reply) => {
 
 function logInputOutput(payload: SlackPayload, response: string) {
     console.log("-----------------------------")
-    console.log("Payload:\n"+JSON.stringify(payload))
+    console.log("Payload: "+JSON.stringify(payload))
     console.log("-----------------------------")
-    console.log("Response:\n"+response)
+    console.log("Response: "+response)
     console.log("-----------------------------")
 }
 
