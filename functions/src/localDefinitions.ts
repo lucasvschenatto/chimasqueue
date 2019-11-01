@@ -11,3 +11,16 @@ export interface SlackPayload{
     command: string
     user_name: string
 }
+export enum Actions {
+    new = "new",
+    join = "join",
+    leave = "leave",
+    next = "next",
+    who = "who",
+    blame = "blame",
+    members = "members",
+    clear = "clear",
+    help = "help"
+}
+
+export type Action = (payload: SlackPayload) => Promise<string>|string

@@ -1,11 +1,9 @@
 import QueueHolder from "./QueueHolder";
-import { SlackPayload } from "../localDefinitions";
-
-type Action = (payload: SlackPayload) => string;
+import { SlackPayload, Action, Actions } from "../localDefinitions";
 
 export default class Chimas {
   private queues: QueueHolder;
-  private actionsMap: {[key in Actions]: Action}
+  protected actionsMap: {[key in Actions]: Action}
   constructor() {
     this.queues = new QueueHolder();
     this.actionsMap = {
@@ -143,16 +141,4 @@ export default class Chimas {
     }
     return message;
   }
-}
-
-enum Actions {
-  new = "new",
-  join = "join",
-  leave = "leave",
-  next = "next",
-  who = "who",
-  blame = "blame",
-  members = "members",
-  clear = "clear",
-  help = "help"
 }
