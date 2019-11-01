@@ -8,17 +8,16 @@ import FirebaseChimas from './Chimas/FirebaseChimas'
 const chimas = new Chimas()
 const firebaseChimas = new FirebaseChimas()
 
-const amargo = functions.https.onRequest((request, reply) => {
-    const payload = new Payload(request.body) as SlackPayload
+const amargoInMemory = functions.https.onRequest((request, reply) => {
+    const payload =request.body as SlackPayload
     const action = payload.text
     const response = chimas.execute(action, payload)
-    
     logInputOutput(payload,response)
     reply.send(response)
 })
 
-const amargoBeta = functions.https.onRequest((request, reply) => {
-    const payload = JSON.parse(JSON.stringify(request.body)) as SlackPayload
+const amargo = functions.https.onRequest((request, reply) => {
+    const payload = request.body as SlackPayload
     const action = payload.text
     const fbResponse = firebaseChimas.execute(action,payload)
     fbResponse
@@ -42,11 +41,11 @@ const ping = functions.https.onRequest((request, reply) => {
 
 function logInputOutput(payload: SlackPayload, response: string) {
     console.log("-----------------------------")
-    console.log("Payload: "+JSON.stringify(payload))
+    console.log("Request: "+JSON.stringify(payload))
     console.log("-----------------------------")
     console.log("Response: "+response)
     console.log("-----------------------------")
 }
 
 
-export { amargo, amargoBeta, ping }
+export { amargo, amargoInMemory, ping }
