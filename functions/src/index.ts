@@ -1,23 +1,23 @@
 import * as functions from 'firebase-functions'
 import * as Payload from "slack-payload"
 import {SlackPayload} from './localDefinitions'
-import Chimas from './Chimas/Chimas'
-import FirebaseChimas from './Chimas/FirebaseChimas'
+import InMemoryAmargo from './amargo/inMemory/InMemoryAmargo'
+import FirebaseAmargo from './Amargo/FirebaseAmargo'
 import * as httpRequest from 'request'
 
-const chimas = new Chimas()
-const firebaseChimas = new FirebaseChimas()
+const chimas = new InMemoryAmargo()
+const firebaseChimas = new FirebaseAmargo()
 
-const amargoInMemory = functions.https.onRequest((request, reply) => {
+const amargoInMemory =  (request:functions.https.Request, reply:functions.Response):void => {
     reply.write(JSON.stringify({response_type: "in_channel"}))
     const payload =request.body as SlackPayload
     const action = payload.text
     const response = chimas.execute(action, payload)
     logInputOutput(payload,response)
     reply.send(response)
-})
+}
 
-const amargo = functions.https.onRequest((request, reply) => {
+const amargo =  (request:functions.https.Request, reply:functions.Response):void => {
     const payload = request.body as SlackPayload
     const action = payload.text
     firebaseChimas.execute(action,payload)
@@ -33,9 +33,9 @@ const amargo = functions.https.onRequest((request, reply) => {
         console.log(error)
         reply.send(error)
     })
-})
+}
 
-const amargoBeta = functions.https.onRequest((req, reply) => {
+const amargoBeta = (req:functions.https.Request, reply:functions.Response):void => {
     const options = {
         uri: req.body.response_url,
         headers: {
@@ -54,25 +54,19 @@ const amargoBeta = functions.https.onRequest((req, reply) => {
         console.log(`statusCode: ${res.statusCode}`)
         console.log(body)
     })
-    // httpRequest.post(
-    //     req.body.response_url,
-    //     {
-    //         form:{"text": "Thanks for your request, we'll process it and get back to you."}
-    //     },(error,res,body)=>{
-    //         if(error){
-    //             console.log(error)
-    //             return
-    //         }
-    //         console.log(`statusCode: ${res.statusCode}`)
-    //         console.log(body)
-    //     })
     amargo(req,reply)
-})
+}
 
-const ping = functions.https.onRequest((request, reply) => {
+
+const ping = (request:functions.https.Request, reply:functions.Response):void => {
     const payload = new Payload(request.body) as SlackPayload
     reply.send(JSON.stringify(payload))
-})
+}
+
+const httpsPing = functions.https.onRequest(ping)
+const httpsAmargoBeta = functions.https.onRequest(amargoBeta)
+const httpsAmargo = functions.https.onRequest(amargo)
+const httpsAmargoInMemory = functions.https.onRequest(amargoInMemory)
 
 function logInputOutput(payload: SlackPayload, response: string) {
     console.log("-----------------------------")
@@ -83,4 +77,4 @@ function logInputOutput(payload: SlackPayload, response: string) {
 }
 
 
-export { amargo, amargoBeta, amargoInMemory, ping }
+export { httpsAmargo as amargo, httpsAmargoBeta as amargoBeta, httpsAmargoInMemory as amargoInMemory, httpsPing as ping }

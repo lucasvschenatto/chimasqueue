@@ -1,7 +1,7 @@
 import QueueHolder from "./QueueHolder";
-import { SlackPayload, Action, Actions } from "../localDefinitions";
+import { SlackPayload, Action, Actions } from "../../localDefinitions";
 
-export default class Chimas {
+export default class InMemoryAmargo {
   private queues: QueueHolder;
   protected actionsMap: {[key in Actions]: Action}
   constructor() {
