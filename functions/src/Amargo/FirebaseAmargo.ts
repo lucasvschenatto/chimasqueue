@@ -9,7 +9,7 @@ interface Member extends SlackPayload{
     timestamp:string
 }
 
-export default class FirebaseChimas{
+export default class FirebaseAmargo{
     db: FirebaseFirestore.Firestore
     protected actionsMap: {[key in Actions]?: Action}
     constructor() {
