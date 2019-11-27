@@ -40,7 +40,7 @@ export default class FirebaseChimas{
         if(query.empty){
             return `Queue is Empty`
         }
-        let members:string[] = []
+        const members:string[] = []
         query.forEach(member=>{
             const {user_id}= member.data() as Member
             members.push(user_id)

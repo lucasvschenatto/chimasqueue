@@ -3,7 +3,7 @@ import * as Payload from "slack-payload"
 import {SlackPayload} from './localDefinitions'
 import Chimas from './Chimas/Chimas'
 import FirebaseChimas from './Chimas/FirebaseChimas'
-
+import * as httpRequest from 'request'
 
 const chimas = new Chimas()
 const firebaseChimas = new FirebaseChimas()
@@ -35,26 +35,38 @@ const amargo = functions.https.onRequest((request, reply) => {
     })
 })
 
-const amargoBeta = functions.https.onRequest((request, reply) => {
-    reply.status(200)
-    reply.setHeader('Content-type','application/json')
-    reply.write(JSON.stringify({response_type: "in_channel"}))
-    const payload = request.body as SlackPayload
-    const action = payload.text
-    firebaseChimas.execute(action,payload)
-    .then(response=>{
-        const slackResponse = {
-            response_type: "in_channel",
-            text: response
+const amargoBeta = functions.https.onRequest((req, reply) => {
+    const options = {
+        uri: req.body.response_url,
+        headers: {
+          "Content-type": "application/json"
+        },
+        body:{
+            "text": "Thanks for your request, we'll process it and get back to you.",
+            "response_type": "ephemeral",
         }
-        logInputOutput(payload,response)
-        reply.write(JSON.stringify(slackResponse))
-        reply.end()
+      }
+    httpRequest.post(options,(error,res,body)=>{
+        if(error){
+            console.log(error)
+            return
+        }
+        console.log(`statusCode: ${res.statusCode}`)
+        console.log(body)
     })
-    .catch(error=>{
-        console.log(error)
-        reply.send(error)
-    })
+    // httpRequest.post(
+    //     req.body.response_url,
+    //     {
+    //         form:{"text": "Thanks for your request, we'll process it and get back to you."}
+    //     },(error,res,body)=>{
+    //         if(error){
+    //             console.log(error)
+    //             return
+    //         }
+    //         console.log(`statusCode: ${res.statusCode}`)
+    //         console.log(body)
+    //     })
+    amargo(req,reply)
 })
 
 const ping = functions.https.onRequest((request, reply) => {

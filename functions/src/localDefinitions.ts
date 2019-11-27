@@ -10,6 +10,7 @@ export interface SlackPayload{
     channel_name: string
     command: string
     user_name: string
+    response_url: string
 }
 export enum Actions {
     new = "new",
