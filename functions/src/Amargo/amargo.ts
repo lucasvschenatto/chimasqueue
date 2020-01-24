@@ -33,7 +33,7 @@ function amargoInMemory(request: functions.https.Request, reply: functions.Respo
     reply.send(response)
 }
 function amargoBeta(req: functions.https.Request, reply: functions.Response): void {
-    httpRequest.post(req.body.response_url,{body:{"text":"received request","response_type":"ephemeral"}},(error,res,body)=>{
+    httpRequest.post(req.body.response_url,{body:'{"text":"received request","response_type":"ephemeral"}'},(error,res,body)=>{
         if (error) {
             console.log("-------------error"+JSON.stringify(error))
         } else{
@@ -41,6 +41,7 @@ function amargoBeta(req: functions.https.Request, reply: functions.Response): vo
             console.log("-----------------body"+JSON.stringify(body))
         }
     })
+    // body:{"text":"received request","response_type":"ephemeral"}
     // const options: httpRequest.UriOptions & httpRequest.CoreOptions = {
     //     uri: req.body.response_url,
     //     headers: {
